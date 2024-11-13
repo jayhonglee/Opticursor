@@ -14,7 +14,7 @@ class FaceMeshApp:
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_face_mesh = mp.solutions.face_mesh
 
-    def process_frame(self, frame):
+    def process_frame(self, frame, withDrawing):
         # Convert frame to RGB
         frame.flags.writeable = False
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -26,7 +26,7 @@ class FaceMeshApp:
 
         if results.multi_face_landmarks:
             for face_landmarks in results.multi_face_landmarks:
-                self.draw_landmarks(frame, face_landmarks)
+                if withDrawing: self.draw_landmarks(frame, face_landmarks)
                 self.print_eye_landmarks(face_landmarks) # TODO: Remove later
 
         return frame
@@ -67,7 +67,7 @@ class FaceMeshApp:
         for idx in right_eye_indices:
             print(f"Landmark {idx}: {face_landmarks.landmark[idx[0]]}, {face_landmarks.landmark[idx[1]]}")
 
-    def run(self):
+    def run(self, withDrawing):
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
             success, frame = cap.read()
@@ -75,7 +75,7 @@ class FaceMeshApp:
                 print("Ignoring empty camera frame.")
                 continue
 
-            frame = self.process_frame(frame)
+            frame = self.process_frame(frame, withDrawing)
 
             # Flip the frame horizontally for a selfie-view display
             cv2.imshow('MediaPipe Face Mesh', cv2.flip(frame, 1))
